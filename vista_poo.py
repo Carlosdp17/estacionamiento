@@ -13,7 +13,7 @@ imagenes = []
 id_seleccionado = None
 
 class FuncionesAuxiliares:
-    def __init__(self, ):
+    def __init__(self):
         self.conexion = ConexionDB()
         self.estacionamiento = Estacionamiento(None, None, None)
 
