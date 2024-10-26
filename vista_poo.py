@@ -9,21 +9,22 @@ import random
 from modelo_poo import ConexionDB, Tablas, Estacionamiento
 
 # Lista global para almacenar las referencias a las imágenes
-imagenes = []
-id_seleccionado = None
+# imagenes = []
+# id_seleccionado = None
 
 class FuncionesAuxiliares:
     def __init__(self):
         self.conexion = ConexionDB()
         self.estacionamiento = Estacionamiento(None, None, None)
+        self.imagenes = []
+        self.id_seleccionado = None
 
     def seleccionar_vehiculo(self, variable_1, variable_2, variable_3, tree):
-        global id_seleccionado
         selected_item = tree.selection()  # Obtiene el identificador del elemento seleccionado en la tabla
         if selected_item:  # Verificar si hay algún elemento seleccionado
             item = tree.item(selected_item)  # Obtiene los datos del elemento seleccionado en la tabla
             valores = item['values']  # Extracción de valores
-            id_seleccionado = valores[0]  # Asumiendo que el ID es el primer valor en la lista de valores
+            self.id_seleccionado = valores[0]  # Asumiendo que el ID es el primer valor en la lista de valores
             self.estacionamiento.borrar_campos(variable_1, variable_2, variable_3)  # Borra texto en caso de que esté escrito el entry
             variable_1.set(valores[1])  # Inserta 2° valor (dominio) en el entry_dominio
             variable_2.set(valores[2])  # Inserta 3° valor (tipo) en el entry_tipo
@@ -38,6 +39,7 @@ class FuncionesAuxiliares:
             self.estacionamiento.borrar_campos(variable_1, variable_2, variable_3)
 
     def listar(self, tree, variable_1, variable_2, variable_3):
+        # Borrar los campos y deselecciona cualquier elemento en el tree
         self.estacionamiento.borrar_campos(variable_1, variable_2, variable_3)
         self.deseleccionar_vehiculo(tree, variable_1, variable_2, variable_3)
         # Limpiar la tabla
@@ -59,7 +61,7 @@ class FuncionesAuxiliares:
             img = Image.open(ruta)
             img = img.resize(tamaño, Image.LANCZOS)
             img_tk = ImageTk.PhotoImage(img)
-            imagenes.append(img_tk)  # Almacenar la referencia
+            self.imagenes.append(img_tk)  # Almacenar la referencia
             return img_tk
         except Exception as e:
             print(f"Error al cargar la imagen: {e}")
@@ -491,7 +493,7 @@ class VistaPrincipal:
         # Crear calendario
         self.calendario()
         # Llamar a la función listar para mostrar los datos iniciales
-        self.listar()
+        self.funciones_auxiliares.listar(self.tree, self.variable_1, self.variable_2, self.variable_3)
 
     def crear_iconos(self):
         img1_tk = self.funciones_auxiliares.cargar_imagen(self.ruta1)
@@ -512,56 +514,56 @@ class VistaPrincipal:
         self.btn_mod = tk.Button(self.frame_iconos, image=img3_tk, command=lambda:self.funciones_auxiliares.vista_modificar_vehiculo(self.variable_1, self.variable_2, self.tree, self.variable_3))
         self.btn_mod.config(cursor='hand2')
         self.btn_mod.grid(row=0, column=2, padx=10, pady=5, sticky="w")
-        self.btn_mod.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Modificar", root, self.descripcion))
+        self.btn_mod.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Modificar", self.root, self.descripcion))
         self.btn_mod.bind("<Leave>", lambda event: self.funciones_auxiliares.ocultar_descripcion(event, self.descripcion))
 
         img4_tk = self.funciones_auxiliares.cargar_imagen(self.ruta4)
         self.btn_bus = tk.Button(self.frame_iconos, image=img4_tk, command=lambda:self.funciones_auxiliares.vista_buscar(self.variable_1, self.variable_2, self.variable_3, self.tree))
         self.btn_bus.config(cursor='hand2')
         self.btn_bus.grid(row=0, column=3, padx=10, pady=5, sticky="w")
-        self.btn_bus.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Buscar", root, self.descripcion))
+        self.btn_bus.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Buscar", self.root, self.descripcion))
         self.btn_bus.bind("<Leave>", lambda event: self.funciones_auxiliares.ocultar_descripcion(event, self.descripcion))
 
         img5_tk = self.funciones_auxiliares.cargar_imagen(self.ruta5)
         self.btn_act = tk.Button(self.frame_iconos, image=img5_tk, command=lambda:self.funciones_auxiliares.listar(self.tree, self.variable_1, self.variable_2, self.variable_3))
         self.btn_act.config(cursor='hand2')
         self.btn_act.grid(row=0, column=4, padx=10, pady=5, sticky="w")
-        self.btn_act.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Actualizar", root, self.descripcion))
+        self.btn_act.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Actualizar", self.root, self.descripcion))
         self.btn_act.bind("<Leave>", lambda event: self.funciones_auxiliares.ocultar_descripcion(event, self.descripcion))
 
         img6_tk = self.funciones_auxiliares.cargar_imagen(self.ruta6)
         self.btn_eli = tk.Button(self.frame_iconos, image=img6_tk, command=lambda:self.funciones_auxiliares.vista_borrar(self.tree, self.variable_1, self.variable_2, self.variable_3))
         self.btn_eli.config(cursor='hand2')
         self.btn_eli.grid(row=0, column=5, padx=10, pady=5, sticky="w")
-        self.btn_eli.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Eliminar", root, self.descripcion))
+        self.btn_eli.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Eliminar", self.root, self.descripcion))
         self.btn_eli.bind("<Leave>", lambda event: self.funciones_auxiliares.ocultar_descripcion(event, self.descripcion))
 
         img7_tk = self.funciones_auxiliares.cargar_imagen(self.ruta7)
         self.btn_con = tk.Button(self.frame_iconos, image=img7_tk, command=lambda: self.funciones_auxiliares.salir_configuracion(self.frame_configuracion, self.frame_qr, self.frame_calendario, self.frame_manual))
         self.btn_con.config(cursor='hand2')
         self.btn_con.grid(row=0, column=6, padx=10, pady=5, sticky="w")
-        self.btn_con.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Configuración", root, self.descripcion))
+        self.btn_con.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Configuración", self.root, self.descripcion))
         self.btn_con.bind("<Leave>", lambda event: self.funciones_auxiliares.ocultar_descripcion(event, self.descripcion))
 
         img8_tk = self.funciones_auxiliares.cargar_imagen(self.ruta8)
         self.btn_rec = tk.Button(self.frame_iconos, image=img8_tk, command=lambda:self.funciones_auxiliares.vista_recaudacion_diaria(self.tree, self.calendario, self.frame_qr, self.frame_calendario, self.variable_1, self.variable_2, self.variable_3))
         self.btn_rec.config(cursor='hand2')
         self.btn_rec.grid(row=0, column=7, padx=10, pady=5, sticky="w")
-        self.btn_rec.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Recaudación", root, self.descripcion))
+        self.btn_rec.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Recaudación", self.root, self.descripcion))
         self.btn_rec.bind("<Leave>", lambda event: self.funciones_auxiliares.ocultar_descripcion(event, self.descripcion))
 
         img9_tk = self.funciones_auxiliares.cargar_imagen(self.ruta9)
         self.btn_inf = tk.Button(self.frame_iconos, image=img9_tk, command=lambda: self.funciones_auxiliares.salir_qr(self.frame_qr, self.frame_configuracion, self.frame_calendario, self.frame_manual))
         self.btn_inf.config(cursor='hand2')
         self.btn_inf.grid(row=0, column=8, padx=10, pady=5, sticky="w")
-        self.btn_inf.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Información", root, self.descripcion))
+        self.btn_inf.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Información", self.root, self.descripcion))
         self.btn_inf.bind("<Leave>", lambda event: self.funciones_auxiliares.ocultar_descripcion(event, self.descripcion))
 
         img10_tk = self.funciones_auxiliares.cargar_imagen(self.ruta10)
         self.btn_ocu = tk.Button(self.frame_iconos, image=img10_tk, command=lambda: self.funciones_auxiliares.salir_iconos(self.frame_iconos))
         self.btn_ocu.config(cursor='hand2')
         self.btn_ocu.grid(row=0, column=9, padx=10, pady=5, sticky="e")
-        self.btn_ocu.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Ocultar iconos", root, self.descripcion))
+        self.btn_ocu.bind("<Enter>", lambda event: self.funciones_auxiliares.mostrar_descripcion(event, "Ocultar iconos", self.root, self.descripcion))
         self.btn_ocu.bind("<Leave>", lambda event:self.funciones_auxiliares.ocultar_descripcion(event, self.descripcion))
         
     def crear_label_entry_botones(self):
@@ -613,19 +615,19 @@ class VistaPrincipal:
         
     def barra_menu(self):
         # Crear un menú
-        menu_bar = Menu(root)
-        root.config(menu=menu_bar)
+        menu_bar = Menu(self.root)
+        self.root.config(menu=menu_bar)
         # Añadir un menú llamado "Menú"
         menu_principal = Menu(menu_bar, tearoff=0)
         menu_bar.add_cascade(label="Menú", menu=menu_principal)
         # Añadir las opciones "Configuración" y "Salir" a Menú y un separador
         menu_principal.add_command(label="Configuración", command=lambda: self.funciones_auxiliares.salir_configuracion(self.frame_configuracion, self.frame_qr, self.frame_calendario, self.frame_manual))
         menu_principal.add_separator()  # Añadir un separador
-        menu_principal.add_command(label="Salir", command=root.quit)
+        menu_principal.add_command(label="Salir", command=self.root.quit)
 
         # Validación de entrada para entrys de Configuracions
-        vcmd_numerica = (root.register(self.estacionamiento.validar_entrada_numerica), '%P')
-        vcmd_decimal = (root.register(self.estacionamiento.validar_entrada_decimal), '%P')
+        vcmd_numerica = (self.root.register(self.estacionamiento.validar_entrada_numerica), '%P')
+        vcmd_decimal = (self.root.register(self.estacionamiento.validar_entrada_decimal), '%P')
 
         # Cargar configuración
         # Crear variables
@@ -680,9 +682,9 @@ class VistaPrincipal:
         menu_bar.add_cascade(label="Vista", menu=vista)
 
         # Añadir las opciones "Elegir color de fondo", "Color aleatorio", "Color original", "Barra de iconos"
-        vista.add_command(label="Elegir color de fondo", command=lambda: self.funciones_auxiliares.elegir_color(root))
-        vista.add_command(label="Color de fondo aleatorio", command=lambda:self.funciones_auxiliares.cambiar_color(root, self.frame))
-        vista.add_command(label="Color original", command=lambda: self.funciones_auxiliares.estilo_original(root, self.frame, self.color_original))
+        vista.add_command(label="Elegir color de fondo", command=lambda: self.funciones_auxiliares.elegir_color(self.root))
+        vista.add_command(label="Color de fondo aleatorio", command=lambda:self.funciones_auxiliares.cambiar_color(self.root, self.frame))
+        vista.add_command(label="Color original", command=lambda: self.funciones_auxiliares.estilo_original(self.root, self.frame, self.color_original))
         vista.add_separator()  # Añadir un separador
         vista.add_command(label="Barra de iconos", command=lambda: self.funciones_auxiliares.salir_iconos(self.frame_iconos))
 
@@ -740,7 +742,7 @@ class VistaPrincipal:
         imagen_pil = Image.open(self.ruta)  
         imagen_redimensionada = imagen_pil.resize((20, 20))
         imagen = ImageTk.PhotoImage(imagen_redimensionada)
-        imagenes.append(imagen)  # Almacenar la referencia
+        self.funciones_auxiliares.imagenes.append(imagen)  # Almacenar la referencia
         ayuda.add_command(label="  Gestión de estacionamiento",image=imagen, compound=tk.LEFT, command=lambda: self.funciones_auxiliares.salir_qr(self.frame_qr, self.frame_configuracion, self.frame_calendario, self.frame_manual))
 
         # Código QR con información
@@ -786,16 +788,8 @@ class VistaPrincipal:
         # Inicialmente ocultar el frame de calendario
         self.frame_calendario.grid_remove()
         
-    def actualizar_grafico(self):
-        self.funciones_auxiliares.actualizar_grafico(self.root, self.ax, self.canvas)
-
-    def listar(self):
-        self.funciones_auxiliares.listar(self.tree, self.variable_1, self.variable_2, self.variable_3)
 
     
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    app = VistaPrincipal(root)
-    root.mainloop()
+
 
